@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareSync | Premium Hospital Management System</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- ==================== LOGIN DASHBOARD SCREEN ==================== -->
+    <div id="login-screen" class="login-wrapper">
+        <div class="login-panel">
+            <div class="login-header">
+                <i class="fa-solid fa-heart-pulse login-logo-icon"></i>
+                <h1>CareSync</h1>
+                <p>Advanced Clinical Portal & Management System</p>
+            </div>
+
+            <!-- Login / Sign-In Tab Section -->
+            <div id="auth-signin-box" class="auth-box">
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn active" onclick="switchLoginRole('Doctor')">
+                        <i class="fa-solid fa-user-md"></i> Doctor
+                    </button>
+                    <button class="auth-tab-btn" onclick="switchLoginRole('Admin')">
+                        <i class="fa-solid fa-user-gear"></i> Admin
+                    </button>
+                </div>
+
+                <form id="login-form">
+                    <!-- Hidden field to track role selection -->
+                    <input type="hidden" id="login-role" value="Doctor">
+
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-envelope"></i>
+                            <input type="email" id="login-email" required placeholder="name@hospital.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Security Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-lock"></i>
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal
+                    </button>
+                </form>
+
+                <div class="auth-footer-prompt">
+                    <span id="register-trigger-text">Are you a new Doctor?</span>
+                    <a href="javascript:void(0)" onclick="toggleAuthBox('signup')">Create Doctor Credentials</a>
+                </div>
+                
+                <div class="demo-credentials">
+                    <strong>Demo Accounts:</strong><br>
+                    • Admin: <code>admin@caresync.com</code> / <code>admin123</code><br>
+                    • Doctor: <code>helen.carter@hospital.com</code> / <code>password123</code>
+                </div>
+            </div>
+
+            <!-- Doctor Registration Tab Section -->
+            <div id="auth-signup-box" class="auth-box hidden">
+                <h3 class="auth-subtitle">New Doctor Credentials Registration</h3>
+                <form id="doctor-signup-form">
+                    <div class="form-group">
+                        <label for="signup-name">Full Professional Name <span class="required">*</span></label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-user-doctor"></i>
+                            <input type="text" id="signup-name" required placeholder="e.g. Dr. Arthur Pendelton">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-specialty">Specialty <span class="required">*</span></label>
+                            <input type="text" id="signup-specialty" required placeholder="e.g. Pediatrician">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-dept">Department <span class="required">*</span></label>
+                            <select id="signup-dept" required class="form-select">
+                                <option value="">Select Dept</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Pediatrics">Pediatrics</option>
+                                <option value="Orthopedics">Orthopedics</option>
+                                <option value="Neurology">Neurology</option>
+                                <option value="General Medicine">General Medicine</option>
+                                <option value="Dermatology">Dermatology</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-email">Work Email <span class="required">*</span></label>
+                            <input type="email" id="signup-email" required placeholder="doctor@hospital.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-phone">Mobile Phone <span class="required">*</span></label>
+                            <input type="tel" id="signup-phone" required placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-password">Choose Password <span class="required">*</span></label>
+                            <input type="password" id="signup-password" required placeholder="Min 6 chars">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password">Confirm Password <span class="required">*</span></label>
+                            <input type="password" id="signup-confirm-password" required placeholder="Repeat password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa-solid fa-user-plus"></i> Register & Log In
+                    </button>
+                </form>
+
+                <div class="auth-footer-prompt">
+                    <span>Already registered?</span>
+                    <a href="javascript:void(0)" onclick="toggleAuthBox('signin')">Back to Sign In</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== MAIN APPLICATION CONTAINER ==================== -->
+    <div id="hms-app" class="hms-container hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="hms-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-heart-pulse logo-icon"></i>
+                <span class="logo-text">CareSync</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-tab="dashboard">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard & Reports</span>
+                    </li>
+                    <li class="nav-item" data-tab="patients">
+                        <i class="fa-solid fa-user-injured"></i>
+                        <span>Patients</span>
+                    </li>
+                    <li class="nav-item" data-tab="doctors">
+                        <i class="fa-solid fa-user-md"></i>
+                        <span>Doctor Schedules</span>
+                    </li>
+                    <li class="nav-item" data-tab="appointments">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </li>
+                    <li class="nav-item" data-tab="prescriptions">
+                        <i class="fa-solid fa-file-prescription"></i>
+                        <span>Prescriptions</span>
+                    </li>
+                    <li class="nav-item" data-tab="billing">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Billing & Invoices</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=150" alt="Profile" class="profile-avatar" id="current-user-avatar">
+                    <div class="profile-info">
+                        <span class="profile-name" id="current-user-name">Dr. Helen Carter</span>
+                        <span class="profile-role" id="current-user-role">Chief Administrator</span>
+                    </div>
+                </div>
+                <button class="btn-logout" id="btn-logout" title="Log Out / Exit">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="hms-main">
+            <!-- Header bar -->
+            <header class="hms-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="global-search" placeholder="Search patients, doctors, or bills...">
+                </div>
+                <div class="header-actions">
+                    <div class="header-datetime">
+                        <i class="fa-solid fa-clock"></i>
+                        <span id="current-time">Sunday, June 21, 2026 - 18:23</span>
+                    </div>
+                    <div class="header-notification">
+                        <i class="fa-solid fa-bell notification-icon"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Tab Contents -->
+            <div class="tab-content-container">
+                
+                <!-- 1. DASHBOARD & REPORTS -->
+                <section id="dashboard" class="tab-pane active">
+                    <div class="section-header">
+                        <h1>Hospital Analytics Overview</h1>
+                        <span class="subtitle">Real-time statistics & visual reports of hospital operations.</span>
+                    </div>
+                    
+                    <!-- KPI Cards Grid -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon patients-bg"><i class="fa-solid fa-users"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-title">Total Patients</span>
+                                <h3 id="stat-total-patients">0</h3>
+                                <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> +12% this week</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon doctors-bg"><i class="fa-solid fa-user-md"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-title">Active Staff</span>
+                                <h3 id="stat-active-doctors">0</h3>
+                                <span class="kpi-trend"><i class="fa-solid fa-check"></i> On Duty</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon appts-bg"><i class="fa-solid fa-calendar-check"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-title">Today's Appointments</span>
+                                <h3 id="stat-today-appointments">0</h3>
+                                <span class="kpi-trend down"><i class="fa-solid fa-arrow-down"></i> -4% vs yesterday</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon billing-bg"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+                            <div class="kpi-details">
+                                <span class="kpi-title">Total Revenue</span>
+                                <h3 id="stat-total-revenue">$0.00</h3>
+                                <span class="kpi-trend up"><i class="fa-solid fa-arrow-up"></i> +8% month-over-month</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="chart-card large">
+                            <div class="chart-header">
+                                <h3>Revenue Trend (Monthly)</h3>
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart-revenue"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Department Breakdown</h3>
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart-departments"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Appointment Statuses</h3>
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                            <div class="chart-container flex-center">
+                                <canvas id="chart-appointments"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PATIENTS -->
+                <section id="patients" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h1>Patient Directory</h1>
+                            <span class="subtitle">Manage patient records, emergency contacts, and history.</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('patient-modal')">
+                            <i class="fa-solid fa-user-plus"></i> Register Patient
+                        </button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-filters">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="patient-search" placeholder="Search by name, ID or phone...">
+                            </div>
+                            <select id="patient-gender-filter" class="form-select">
+                                <option value="">All Genders</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="hms-table" id="patients-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Full Name</th>
+                                        <th>Age / DOB</th>
+                                        <th>Gender</th>
+                                        <th>Phone</th>
+                                        <th>Emergency Contact</th>
+                                        <th>Reg. Date</th>
+                                        <th class="actions-header">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. DOCTORS & SCHEDULING -->
+                <section id="doctors" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h1>Doctor Schedules</h1>
+                            <span class="subtitle">Manage physician profiles, active specialties, and weekly duty shifts.</span>
+                        </div>
+                        <!-- Admin-only elements can be hidden/shown via CSS/JS role hooks -->
+                        <button class="btn btn-primary admin-only" onclick="openModal('doctor-modal')">
+                            <i class="fa-solid fa-user-doctor"></i> Add Doctor
+                        </button>
+                    </div>
+
+                    <div class="doctors-layout">
+                        <!-- Doctors List Table -->
+                        <div class="table-card doctors-table-card">
+                            <div class="table-filters">
+                                <div class="search-box">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="doctor-search" placeholder="Search by doctor name or specialty...">
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="hms-table" id="doctors-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Doctor ID</th>
+                                            <th>Doctor Name</th>
+                                            <th>Specialty</th>
+                                            <th>Department</th>
+                                            <th>Contact Details</th>
+                                            <th class="actions-header admin-only">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Availability Scheduler Panel -->
+                        <div class="card schedule-detail-card">
+                            <div class="card-header">
+                                <h3 id="schedule-doctor-name">Select a Doctor</h3>
+                                <span class="badge badge-info">Duty Calendar</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="schedule-empty-state" class="empty-state">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <p>Select a physician from the list to view and manage their scheduled weekly availability.</p>
+                                </div>
+                                <div id="schedule-calendar-view" class="schedule-calendar hidden">
+                                    <!-- Days and Timeslots will be rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. APPOINTMENTS -->
+                <section id="appointments" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h1>Online Appointments</h1>
+                            <span class="subtitle">Schedule, assign doctors, and verify appointment slots.</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openAppointmentModal()">
+                            <i class="fa-solid fa-calendar-plus"></i> Schedule Appointment
+                        </button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-filters flex-row">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="appointment-search" placeholder="Search patients or reasons...">
+                            </div>
+                            <select id="appointment-doctor-filter" class="form-select">
+                                <option value="">All Doctors</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                            <select id="appointment-status-filter" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <input type="date" id="appointment-date-filter" class="form-control">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="hms-table" id="appointments-table">
+                                <thead>
+                                    <tr>
+                                        <th>Appt ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Doctor Name</th>
+                                        <th>Date</th>
+                                        <th>Time Slot</th>
+                                        <th>Reason for Visit</th>
+                                        <th>Status</th>
+                                        <th class="actions-header">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. PRESCRIPTIONS -->
+                <section id="prescriptions" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h1>Prescription Records</h1>
+                            <span class="subtitle">Write prescriptions, log diagnoses, and export medications.</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openPrescriptionModal()">
+                            <i class="fa-solid fa-file-medical"></i> Create Prescription
+                        </button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-filters">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="prescription-search" placeholder="Search by patient, doctor or diagnosis...">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="hms-table" id="prescriptions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Presc. ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Diagnosed By</th>
+                                        <th>Issue Date</th>
+                                        <th>Diagnosis Summary</th>
+                                        <th>Medications</th>
+                                        <th class="actions-header">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. BILLING & INVOICES -->
+                <section id="billing" class="tab-pane">
+                    <div class="section-header">
+                        <div>
+                            <h1>Billing System</h1>
+                            <span class="subtitle">Generate invoices, track outstanding payments, and issue receipts.</span>
+                        </div>
+                        <button class="btn btn-primary admin-only" onclick="openInvoiceModal()">
+                            <i class="fa-solid fa-file-invoice"></i> Create Custom Invoice
+                        </button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-filters">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="billing-search" placeholder="Search bills by patient name or bill ID...">
+                            </div>
+                            <select id="billing-status-filter" class="form-select">
+                                <option value="">All Payments</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Unpaid">Unpaid</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="hms-table" id="billing-table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Issue Date</th>
+                                        <th>Subtotal</th>
+                                        <th>Tax (5%)</th>
+                                        <th>Discount</th>
+                                        <th>Total Paid/Due</th>
+                                        <th>Status</th>
+                                        <th class="actions-header">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== MODALS SECTION ==================== -->
+
+    <!-- Patient Registration Modal -->
+    <div id="patient-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="patient-modal-title">Register New Patient</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('patient-modal')"></i>
+            </div>
+            <form id="patient-form">
+                <input type="hidden" id="edit-patient-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patient-name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="patient-name" required placeholder="e.g. Johnathan Smith">
+                    </div>
+                    <div class="form-group">
+                        <label for="patient-dob">Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="patient-dob" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patient-gender">Gender <span class="required">*</span></label>
+                        <select id="patient-gender" required class="form-select">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="patient-phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="patient-phone" required placeholder="e.g. +1 (555) 000-0000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="patient-email">Email Address</label>
+                    <input type="email" id="patient-email" placeholder="e.g. john@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="patient-address">Home Address</label>
+                    <textarea id="patient-address" rows="2" placeholder="Street, City, Postal Code"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="patient-emergency">Emergency Contact (Name & Phone) <span class="required">*</span></label>
+                    <input type="text" id="patient-emergency" required placeholder="e.g. Mary Smith (Wife) - +1 (555) 111-2222">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('patient-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Doctor Registration Modal -->
+    <div id="doctor-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Doctor Profile</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('doctor-modal')"></i>
+            </div>
+            <form id="doctor-form">
+                <div class="form-group">
+                    <label for="doctor-name">Doctor Name <span class="required">*</span></label>
+                    <input type="text" id="doctor-name" required placeholder="e.g. Dr. Arthur Pendelton">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-specialty">Specialty <span class="required">*</span></label>
+                        <input type="text" id="doctor-specialty" required placeholder="e.g. Cardiologist, Dermatologist">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-dept">Department <span class="required">*</span></label>
+                        <select id="doctor-dept" required class="form-select">
+                            <option value="">Select Department</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="General Medicine">General Medicine</option>
+                            <option value="Dermatology">Dermatology</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-email">Email <span class="required">*</span></label>
+                        <input type="email" id="doctor-email" required placeholder="doctor@hospital.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-phone">Phone <span class="required">*</span></label>
+                        <input type="tel" id="doctor-phone" required placeholder="+1 (555) 000-0000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="doctor-password">Default Login Password <span class="required">*</span></label>
+                    <input type="password" id="doctor-password" required placeholder="password123">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('doctor-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Appointment Modal -->
+    <div id="appointment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule Appointment</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('appointment-modal')"></i>
+            </div>
+            <form id="appointment-form">
+                <div class="form-group">
+                    <label for="appt-patient">Patient <span class="required">*</span></label>
+                    <select id="appt-patient" required class="form-select">
+                        <option value="">Select Registered Patient</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="appt-doctor">Physician <span class="required">*</span></label>
+                    <select id="appt-doctor" required class="form-select">
+                        <option value="">Select Doctor</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appt-date">Appointment Date <span class="required">*</span></label>
+                        <input type="date" id="appt-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="appt-slot">Available Time Slot <span class="required">*</span></label>
+                        <select id="appt-slot" required disabled class="form-select">
+                            <option value="">Choose doctor & date first</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="appt-reason">Reason for Appointment <span class="required">*</span></label>
+                    <input type="text" id="appt-reason" required placeholder="e.g. Annual physical, chronic headaches">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('appointment-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Prescription Creation Modal -->
+    <div id="prescription-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Issue New Prescription</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('prescription-modal')"></i>
+            </div>
+            <form id="prescription-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="presc-patient">Patient Name <span class="required">*</span></label>
+                        <select id="presc-patient" required class="form-select">
+                            <option value="">Select Patient</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="presc-doctor">Prescribing Doctor <span class="required">*</span></label>
+                        <select id="presc-doctor" required class="form-select">
+                            <option value="">Select Doctor</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="presc-diagnosis">Diagnosis Summary <span class="required">*</span></label>
+                    <input type="text" id="presc-diagnosis" required placeholder="e.g. Acute Bronchitis, Type 2 Diabetes">
+                </div>
+
+                <div class="medication-builder">
+                    <div class="builder-header">
+                        <h3>Prescribed Medications</h3>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="addMedicationRow()">
+                            <i class="fa-solid fa-plus"></i> Add Medication
+                        </button>
+                    </div>
+                    <div id="medication-rows" class="medication-rows-container">
+                        <!-- Dynamic rows appear here -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="presc-notes">Additional Advice / Non-Pharmacological Notes</label>
+                    <textarea id="presc-notes" rows="3" placeholder="e.g. Rest, limit glucose intake, return if symptoms worsen..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('prescription-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Prescription</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Custom Invoice Modal -->
+    <div id="invoice-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Create Custom Invoice</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('invoice-modal')"></i>
+            </div>
+            <form id="invoice-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bill-patient">Patient Name <span class="required">*</span></label>
+                        <select id="bill-patient" required class="form-select">
+                            <option value="">Select Patient</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bill-date">Invoice Date <span class="required">*</span></label>
+                        <input type="date" id="bill-date" required>
+                    </div>
+                </div>
+
+                <div class="invoice-items-builder">
+                    <div class="builder-header">
+                        <h3>Invoice Service Items</h3>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="addInvoiceItemRow()">
+                            <i class="fa-solid fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    <div id="invoice-item-rows" class="item-rows-container">
+                        <!-- Dynamic items list -->
+                    </div>
+                </div>
+
+                <div class="form-row math-summary">
+                    <div class="form-group">
+                        <label for="bill-discount">Apply Discount ($)</label>
+                        <input type="number" id="bill-discount" min="0" step="0.01" value="0.00">
+                    </div>
+                    <div class="total-summary-card">
+                        <div>Subtotal: <span id="bill-calc-subtotal">$0.00</span></div>
+                        <div>Tax (5%): <span id="bill-calc-tax">$0.00</span></div>
+                        <div class="grand-total-row">Grand Total: <span id="bill-calc-total">$0.00</span></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('invoice-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Generate Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Process Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content modal-narrow">
+            <div class="modal-header">
+                <h2>Process Invoice Payment</h2>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('payment-modal')"></i>
+            </div>
+            <form id="payment-form">
+                <input type="hidden" id="pay-invoice-id">
+                <div class="payment-info-summary">
+                    <p>Processing payment for Invoice: <strong id="pay-invoice-display-id">BIL001</strong></p>
+                    <p>Total Outstanding Balance: <strong id="pay-invoice-amount" class="text-primary">$0.00</strong></p>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Select Payment Method <span class="required">*</span></label>
+                    <select id="payment-method" required class="form-select">
+                        <option value="">Select Method</option>
+                        <option value="Card">Credit/Debit Card</option>
+                        <option value="Cash">Cash Payment</option>
+                        <option value="Insurance">Insurance Claim</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('payment-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Complete Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View & Print Details Modal -->
+    <div id="print-modal" class="modal">
+        <div class="modal-content print-modal-content">
+            <div class="modal-header hide-print">
+                <h2>Receipt View</h2>
+                <div class="print-header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="window.print()">
+                        <i class="fa-solid fa-print"></i> Print Document
+                    </button>
+                    <i class="fa-solid fa-xmark close-modal" onclick="closeModal('print-modal')"></i>
+                </div>
+            </div>
+            <div id="print-document-body" class="print-document-body">
+                <!-- Injected printable templates for Prescription/Invoice -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Initialization Scripts -->
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
